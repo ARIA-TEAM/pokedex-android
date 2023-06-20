@@ -47,7 +47,6 @@ import com.example.pokedex.ui.main.state.PokedexMainScreen
 import com.example.pokedex.ui.theme.Gray
 import kotlinx.coroutines.delay
 
-
 @Composable
 fun PokedexAppNavHost(
     mainViewState: MainViewState,
