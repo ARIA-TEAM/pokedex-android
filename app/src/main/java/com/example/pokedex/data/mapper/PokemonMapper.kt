@@ -40,7 +40,7 @@ class PokemonMapper @Inject constructor() {
     fun remotePokemonListResponseToPokemonListSummary(pokemonListResponse: PokemonListResponse): List<PokemonListSummary> {
         return with(pokemonListResponse) {
             this.results.map {
-                PokemonListSummary(name = it.name)
+                PokemonListSummary(name = it.name, url = it.url)
             }
         }
     }

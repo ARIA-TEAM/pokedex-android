@@ -9,10 +9,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -43,34 +45,37 @@ import com.example.pokedex.data.model.PokemonListSummary
 import com.example.pokedex.ui.main.MainViewModel
 import com.example.pokedex.ui.main.state.MainStateEvent
 import com.example.pokedex.ui.main.state.MainViewState
-import com.example.pokedex.ui.main.state.PokedexMainScreen
+import com.example.pokedex.ui.main.state.PokedexMainScreens
 import com.example.pokedex.ui.theme.Gray
 import kotlinx.coroutines.delay
 
 @Composable
 fun PokedexAppNavHost(
     mainViewState: MainViewState,
+    favoritePokemonList: List<PokemonListSummary>,
     navController: NavHostController,
     viewModel: MainViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     NavHost(
-        navController = navController, startDestination = PokedexMainScreen.SplashScreen.route
+        navController = navController, startDestination = PokedexMainScreens.SplashScreen.route
     ) {
-        composable(PokedexMainScreen.SplashScreen.route) { PokedexSplashScreen(navController) }
-        composable(PokedexMainScreen.GetStartedScreen.route) {
+        composable(PokedexMainScreens.SplashScreen.route) { PokedexSplashScreen(navController) }
+        composable(PokedexMainScreens.GetStartedScreen.route) {
             PokedexGetStartedScreen(
                 mainViewState = mainViewState,
                 navController = navController,
                 viewModel::setStateEvent
             )
         }
-        composable(PokedexMainScreen.MainScreen.route) {
+        composable(PokedexMainScreens.MainScreen.route) {
             PokedexMainScreen(
-                mainViewState = mainViewState, viewModel = viewModel
+                mainViewState = mainViewState,
+                favoritePokemonList = favoritePokemonList,
+                onPokemonItemSelected = viewModel::setStateEvent,
+                onFavoriteIconPressed = viewModel::setStateEvent
             )
         }
     }
-
 }
 
 @Composable
@@ -78,7 +83,7 @@ fun PokedexSplashScreen(navController: NavHostController) {
 
     LaunchedEffect(key1 = true) {
         delay(2000L)
-        navController.navigate(PokedexMainScreen.GetStartedScreen.route)
+        navController.navigate(PokedexMainScreens.GetStartedScreen.route)
     }
     Box(
         modifier = Modifier
@@ -98,36 +103,97 @@ fun PokedexSplashScreen(navController: NavHostController) {
 
 @Composable
 fun DetailScreen(
-    onNavigationToProfile: () -> Unit
+    pokemonFavoriteList: List<PokemonListSummary>,
+    onPokemonItemSelected: (MainStateEvent) -> Unit,
+    onFavoriteIconPressed: (MainStateEvent) -> Unit
 ) {
-    Column {
-        Text(
-            text = "Hello !"
-        )
-        Button(onClick = onNavigationToProfile) {
-            Text(text = "PROFILE")
-        }
-    }
+    ShowFavoritePokemonList(
+        pokemonListSummary = pokemonFavoriteList,
+        onPokemonItemSelected = onPokemonItemSelected,
+        onFavoriteIconPressed = onFavoriteIconPressed
+    )
 }
 
 @Composable
 fun PokemonListScreen(
     mainViewState: MainViewState,
     navController: NavHostController,
-    onNavigationToDetails: () -> Unit,
-    viewModel: MainViewModel
+    onPokemonItemSelected: (MainStateEvent) -> Unit,
+    onFavoriteIconPressed: (MainStateEvent) -> Unit
 ) {
     when (mainViewState) {
         is MainViewState.Loading -> ShowLoader()
-        is MainViewState.GetPokemonListSuccess -> ShowPokemonList(mainViewState.pokemonListSummary)
+        is MainViewState.GetPokemonListSuccess -> ShowPokemonList(
+            pokemonListSummary = mainViewState.pokemonListSummary,
+            onPokemonItemSelected = onPokemonItemSelected,
+            onFavoriteIconPressed = onFavoriteIconPressed
+        )
+
         else -> Unit
+    }
+
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+fun ShowFavoritePokemonList(
+    pokemonListSummary: List<PokemonListSummary>,
+    onPokemonItemSelected: (MainStateEvent) -> Unit,
+    onFavoriteIconPressed: (MainStateEvent) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Gray),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (pokemonListSummary.isNotEmpty()) {
+            ShowPokemonList(
+                pokemonListSummary = pokemonListSummary,
+                onPokemonItemSelected = onPokemonItemSelected,
+                onFavoriteIconPressed = onFavoriteIconPressed
+            )
+        } else {
+            var text by remember { mutableStateOf(TextFieldValue("")) }
+            TextField(
+                leadingIcon = {
+                    Icon(imageVector = Icons.Filled.Search, contentDescription = null)
+                },
+                value = text,
+                onValueChange = { textFieldValue ->
+                    text = textFieldValue
+                },
+                placeholder = { Text(text = "Search") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 30.dp, vertical = 40.dp),
+                singleLine = true,
+                shape = TextFieldDefaults.filledShape,
+                colors = TextFieldDefaults.textFieldColors(
+                    containerColor = Color.White,
+                    disabledTextColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent
+                )
+            )
+            Text(text = "No pokemons")
+            Text(
+                text = "The digital encyclopedia created by Professor Oak is an " +
+                        "invaluable tool to Trainers in the Pokémon world."
+            )
+        }
     }
 
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShowPokemonList(pokemonListSummary: List<PokemonListSummary>) {
+fun ShowPokemonList(
+    pokemonListSummary: List<PokemonListSummary>,
+    onPokemonItemSelected: (MainStateEvent) -> Unit,
+    onFavoriteIconPressed: (MainStateEvent) -> Unit
+) {
 
     Column(
         verticalArrangement = Arrangement.Center,
@@ -158,12 +224,14 @@ fun ShowPokemonList(pokemonListSummary: List<PokemonListSummary>) {
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent
             )
-
-
         )
-        LazyColumn(modifier = Modifier.fillMaxWidth()) {
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(pokemonListSummary.size) {
-                PokemonListItem(pokemonListSummary[it].name) {}
+                PokemonListItem(
+                    pokemonListSummary[it],
+                    onPokemonItemSelected = onPokemonItemSelected,
+                    onFavoriteIconPressed = onFavoriteIconPressed
+                )
             }
         }
     }
@@ -244,10 +312,10 @@ fun PokedexGetStartedScreen(
             start.linkTo(parent.start)
         }, colors = ButtonDefaults.buttonColors(containerColor = Color.Red), onClick = {
             onGetEvent(MainStateEvent.GetPokemons)
-            navController.navigate(PokedexMainScreen.MainScreen.route)
+            navController.navigate(PokedexMainScreens.MainScreen.route)
         }) {
             Text(text = "Get Started")
         }
-
     }
+
 }

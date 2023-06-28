@@ -14,7 +14,7 @@ class MainPokemonRepository @Inject constructor(
 
     override suspend fun getPokemon(pokemonName: String): PokemonSummary {
         return pokemonMapper.remotePokemonToPokemonSummary(
-            pokemonDataSource.getPokemon(pokemonName)
+            pokemonDataSource.getPokemonByUrl(pokemonName)
         )
     }
 

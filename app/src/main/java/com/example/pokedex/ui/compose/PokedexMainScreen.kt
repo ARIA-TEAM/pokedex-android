@@ -25,13 +25,19 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.pokedex.ui.main.MainViewModel
+import com.example.pokedex.data.model.PokemonListSummary
 import com.example.pokedex.ui.main.state.CoreScreen
+import com.example.pokedex.ui.main.state.MainStateEvent
 import com.example.pokedex.ui.main.state.MainViewState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PokedexMainScreen(mainViewState: MainViewState, viewModel: MainViewModel) {
+fun PokedexMainScreen(
+    mainViewState: MainViewState,
+    favoritePokemonList: List<PokemonListSummary>,
+    onPokemonItemSelected: (MainStateEvent) -> Unit,
+    onFavoriteIconPressed: (MainStateEvent) -> Unit,
+) {
     val navController = rememberNavController()
     Scaffold(containerColor = Color.Gray, bottomBar = {
         BottomAppBar(
@@ -116,12 +122,18 @@ fun PokedexMainScreen(mainViewState: MainViewState, viewModel: MainViewModel) {
                 PokemonListScreen(
                     mainViewState = mainViewState,
                     navController,
-                    {},
-                    viewModel
+                    onPokemonItemSelected = onPokemonItemSelected,
+                    onFavoriteIconPressed = onFavoriteIconPressed
                 )
             }
-            composable(CoreScreen.Favorites.route) { DetailScreen({}) }
+            composable(CoreScreen.Favorites.route) {
+                DetailScreen(
+                    pokemonFavoriteList = favoritePokemonList,
+                    onPokemonItemSelected = onPokemonItemSelected,
+                    onFavoriteIconPressed = onFavoriteIconPressed
+                )
+            }
         }
     }
-}
 
+}

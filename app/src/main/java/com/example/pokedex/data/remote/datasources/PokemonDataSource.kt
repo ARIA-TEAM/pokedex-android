@@ -9,8 +9,8 @@ class PokemonDataSource @Inject constructor(
     private val pokemonApiService: PokemonAPIService
 ) {
 
-    suspend fun getPokemon(pokemonName: String): PokemonDetailResponse {
-        return pokemonApiService.getPokemon(pokemonName)
+    suspend fun getPokemonByUrl(pokemonNumberId: String): PokemonDetailResponse {
+        return pokemonApiService.getPokemonByUrl(pokemonNumberId)
     }
 
     suspend fun getPokemons(): PokemonListResponse {

@@ -34,8 +34,11 @@ class MainActivity : BaseActivity<MainViewState>() {
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
                     val viewState by viewModel.viewData.collectAsState()
+                    val favoritePokemonList by viewModel.pokemonFavoriteList.collectAsState()
                     PokedexAppNavHost(
-                        mainViewState = viewState, navController = navController, viewModel
+                        mainViewState = viewState,
+                        favoritePokemonList = favoritePokemonList,
+                        navController = navController
                     )
                 }
             }
