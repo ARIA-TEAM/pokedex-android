@@ -9,12 +9,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -107,8 +105,9 @@ fun DetailScreen(
     onPokemonItemSelected: (MainStateEvent) -> Unit,
     onFavoriteIconPressed: (MainStateEvent) -> Unit
 ) {
-    ShowFavoritePokemonList(
-        pokemonListSummary = pokemonFavoriteList,
+    val pokemonFavoriteFiltered = pokemonFavoriteList.distinctBy { it.name }
+    ShowPokemonFavoriteList(
+        pokemonListSummary = pokemonFavoriteFiltered,
         onPokemonItemSelected = onPokemonItemSelected,
         onFavoriteIconPressed = onFavoriteIconPressed
     )
@@ -119,70 +118,19 @@ fun PokemonListScreen(
     mainViewState: MainViewState,
     navController: NavHostController,
     onPokemonItemSelected: (MainStateEvent) -> Unit,
-    onFavoriteIconPressed: (MainStateEvent) -> Unit
+    onFavoriteIconPressed: (MainStateEvent) -> Unit,
+    pokemonFavoriteList: List<PokemonListSummary>
 ) {
     when (mainViewState) {
         is MainViewState.Loading -> ShowLoader()
         is MainViewState.GetPokemonListSuccess -> ShowPokemonList(
             pokemonListSummary = mainViewState.pokemonListSummary,
             onPokemonItemSelected = onPokemonItemSelected,
-            onFavoriteIconPressed = onFavoriteIconPressed
+            onFavoriteIconPressed = onFavoriteIconPressed,
+            pokemonFavoriteList = pokemonFavoriteList
         )
 
         else -> Unit
-    }
-
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-fun ShowFavoritePokemonList(
-    pokemonListSummary: List<PokemonListSummary>,
-    onPokemonItemSelected: (MainStateEvent) -> Unit,
-    onFavoriteIconPressed: (MainStateEvent) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Gray),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        if (pokemonListSummary.isNotEmpty()) {
-            ShowPokemonList(
-                pokemonListSummary = pokemonListSummary,
-                onPokemonItemSelected = onPokemonItemSelected,
-                onFavoriteIconPressed = onFavoriteIconPressed
-            )
-        } else {
-            var text by remember { mutableStateOf(TextFieldValue("")) }
-            TextField(
-                leadingIcon = {
-                    Icon(imageVector = Icons.Filled.Search, contentDescription = null)
-                },
-                value = text,
-                onValueChange = { textFieldValue ->
-                    text = textFieldValue
-                },
-                placeholder = { Text(text = "Search") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 30.dp, vertical = 40.dp),
-                singleLine = true,
-                shape = TextFieldDefaults.filledShape,
-                colors = TextFieldDefaults.textFieldColors(
-                    containerColor = Color.White,
-                    disabledTextColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent
-                )
-            )
-            Text(text = "No pokemons")
-            Text(
-                text = "The digital encyclopedia created by Professor Oak is an " +
-                        "invaluable tool to Trainers in the Pokémon world."
-            )
-        }
     }
 
 }
@@ -192,7 +140,8 @@ fun ShowFavoritePokemonList(
 fun ShowPokemonList(
     pokemonListSummary: List<PokemonListSummary>,
     onPokemonItemSelected: (MainStateEvent) -> Unit,
-    onFavoriteIconPressed: (MainStateEvent) -> Unit
+    onFavoriteIconPressed: (MainStateEvent) -> Unit,
+    pokemonFavoriteList: List<PokemonListSummary>
 ) {
 
     Column(
@@ -202,6 +151,7 @@ fun ShowPokemonList(
             .background(Gray),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
         var text by remember { mutableStateOf(TextFieldValue("")) }
         TextField(
             leadingIcon = {
@@ -230,9 +180,69 @@ fun ShowPokemonList(
                 PokemonListItem(
                     pokemonListSummary[it],
                     onPokemonItemSelected = onPokemonItemSelected,
-                    onFavoriteIconPressed = onFavoriteIconPressed
+                    onFavoriteIconPressed = onFavoriteIconPressed,
+                    pokemonFavoriteList = pokemonFavoriteList
                 )
             }
+        }
+    }
+
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ShowPokemonFavoriteList(
+    pokemonListSummary: List<PokemonListSummary>,
+    onPokemonItemSelected: (MainStateEvent) -> Unit,
+    onFavoriteIconPressed: (MainStateEvent) -> Unit
+) {
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Gray),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        var text by remember { mutableStateOf(TextFieldValue("")) }
+        TextField(
+            leadingIcon = {
+                Icon(imageVector = Icons.Filled.Search, contentDescription = null)
+            },
+            value = text,
+            onValueChange = { textFieldValue ->
+                text = textFieldValue
+            },
+            placeholder = { Text(text = "Search") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 30.dp, vertical = 40.dp),
+            singleLine = true,
+            shape = TextFieldDefaults.filledShape,
+            colors = TextFieldDefaults.textFieldColors(
+                containerColor = Color.White,
+                disabledTextColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
+            )
+        )
+        if (pokemonListSummary.isNotEmpty()) {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(pokemonListSummary.size) {
+                    PokemonFavoriteListItem(
+                        pokemonListSummary[it],
+                        onPokemonItemSelected = onPokemonItemSelected,
+                        onFavoriteIconPressed = onFavoriteIconPressed
+                    )
+                }
+            }
+        } else {
+            Text(text = "No pokemons")
+            Text(
+                text = "The digital encyclopedia created by Professor Oak is an " + "invaluable tool to Trainers in the Pokémon world."
+            )
         }
     }
 

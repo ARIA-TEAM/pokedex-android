@@ -36,7 +36,7 @@ fun PokedexMainScreen(
     mainViewState: MainViewState,
     favoritePokemonList: List<PokemonListSummary>,
     onPokemonItemSelected: (MainStateEvent) -> Unit,
-    onFavoriteIconPressed: (MainStateEvent) -> Unit,
+    onFavoriteIconPressed: (MainStateEvent) -> Unit
 ) {
     val navController = rememberNavController()
     Scaffold(containerColor = Color.Gray, bottomBar = {
@@ -123,7 +123,8 @@ fun PokedexMainScreen(
                     mainViewState = mainViewState,
                     navController,
                     onPokemonItemSelected = onPokemonItemSelected,
-                    onFavoriteIconPressed = onFavoriteIconPressed
+                    onFavoriteIconPressed = onFavoriteIconPressed,
+                    pokemonFavoriteList = favoritePokemonList
                 )
             }
             composable(CoreScreen.Favorites.route) {

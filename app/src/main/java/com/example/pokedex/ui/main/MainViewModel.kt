@@ -24,29 +24,26 @@ class MainViewModel @Inject constructor(
 
     val pokemonFavoriteList: StateFlow<List<PokemonListSummary>> = _pokemonFavoriteList
 
-    private fun addPokemonToFavorite(pokemonName: String) {
-
-        val currentFavoritePokemonList = pokemonFavoriteList.value
-        _pokemonFavoriteList.value =
-            currentFavoritePokemonList + PokemonListSummary(
-                name = pokemonName,
-                isFavorite = true
-            )
-    }
-
-    /*
-        fun removePokemonToFavorite(pokemonName: String) {
-            val currentFavoritePokemon = pokemonFavoriteList.value ?: emptyList()
-            pokemonFavoriteList.value?.forEachIndexed { index, pokemonListFavoriteSummary ->
-                { pokemonName ->
-                    if (pokemonName.name = pokemonName) {
-                        pokemonFavoriteList.value[index].
-                    }
-                }
-
+    private fun onToggleFavoritePokemonButton(pokemon: PokemonListSummary) {
+        val currentFavorites = _pokemonFavoriteList.value.toMutableList()
+        if (!currentFavorites.contains(pokemon)) {
+            val updatedPokemonFavoriteList = _pokemonFavoriteList.value.toMutableList().apply {
+                add(pokemon)
+            }
+            _pokemonFavoriteList.value = updatedPokemonFavoriteList
+        } else {
+            _pokemonFavoriteList.value = _pokemonFavoriteList.value.toMutableList().apply {
+                remove(pokemon)
             }
         }
-    */
+    }
+
+    private fun removePokemonFromFavorites(pokemon: PokemonListSummary) {
+        _pokemonFavoriteList.value = _pokemonFavoriteList.value.toMutableList().apply {
+            remove(pokemon)
+        }
+    }
+
 
     override val _viewData = MutableStateFlow<MainViewState>(MainViewState.Idle)
 
@@ -55,7 +52,11 @@ class MainViewModel @Inject constructor(
             is MainStateEvent.GetPokemon -> getPokemon(stateEvent.pokemonName)
             is MainStateEvent.GetPokemons -> getPokemons()
             is MainStateEvent.GetPokemonFavoriteList -> {}
-            is MainStateEvent.AddPokemonToFavorite -> addPokemonToFavorite(stateEvent.pokemonName)
+            is MainStateEvent.OnToggleFavoritePokemonButton -> onToggleFavoritePokemonButton(
+                stateEvent.pokemon
+            )
+
+            is MainStateEvent.RemovePokemonFromFavorites -> removePokemonFromFavorites(stateEvent.pokemon)
             // is MainStateEvent.GetPokemonByUrl -> getPokemonByUrl(stateEvent.pokemonUrl)
         }
     }

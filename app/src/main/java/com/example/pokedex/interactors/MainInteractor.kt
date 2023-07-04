@@ -34,32 +34,6 @@ class MainInteractor @Inject constructor(
         }
     }
 
-/*
-    override suspend fun getFavoritePokemonList(): MainViewState {
-        TODO("Not yet implemented")
-    }
-*/
-
-    /*
-        override suspend fun getPokemonByUrl(pokemonUrl: String): MainViewState {
-            val result = httpClient.safeApiCall(coroutineDispatcher) {
-                mainPokemonRepository.getPokemon(pokemonUrl = pokemonUrl)
-            }
-
-            return when (result) {
-                is RequestResult.Success -> {
-                    MainViewState.GetPokemonSuccess(result.data ?: PokemonSummary())
-                }
-
-                is RequestResult.RequestError -> {
-                    MainViewState.GetPokemonError(result.errorResponse)
-                }
-
-                else -> MainViewState.Idle
-            }
-        }
-    */
-
     override suspend fun getPokemons(): MainViewState {
         val result = httpClient.safeApiCall(coroutineDispatcher) {
             mainPokemonRepository.getPokemons()
@@ -68,7 +42,7 @@ class MainInteractor @Inject constructor(
         return when (result) {
             is RequestResult.Success -> {
                 MainViewState.GetPokemonListSuccess(
-                    result.data ?: mutableListOf(PokemonListSummary())
+                    result.data ?: mutableListOf(PokemonListSummary(""))
                 )
             }
 

@@ -22,43 +22,91 @@ import com.example.pokedex.ui.main.state.MainStateEvent
 fun PokemonListItem(
     pokemon: PokemonListSummary,
     onPokemonItemSelected: (MainStateEvent) -> Unit,
-    onFavoriteIconPressed: (MainStateEvent) -> Unit
+    onFavoriteIconPressed: (MainStateEvent) -> Unit,
+    pokemonFavoriteList: List<PokemonListSummary>
 ) {
-    ConstraintLayout(
-        modifier = Modifier
-            .clickable {
-                onPokemonItemSelected(
-                    MainStateEvent.GetPokemonByUrl(
-                        pokemon.url
-                    )
+    ConstraintLayout(modifier = Modifier
+        .clickable {
+            onPokemonItemSelected(
+                MainStateEvent.GetPokemonByUrl(
+                    pokemon.url
                 )
-            }
-            .padding(horizontal = 30.dp, vertical = 2.dp)
-            .background(Color.White)
-            .fillMaxWidth()
-    ) {
+            )
+        }
+        .padding(horizontal = 30.dp, vertical = 2.dp)
+        .background(Color.White)
+        .fillMaxWidth()) {
 
         val (name, favoriteIcon) = createRefs()
 
-        Text(text = pokemon.name.replaceFirstChar { char -> char.uppercaseChar() }, modifier = Modifier
-            .constrainAs(name) {
+        Text(text = pokemon.name.replaceFirstChar { char -> char.uppercaseChar() },
+            modifier = Modifier.constrainAs(name) {
                 top.linkTo(parent.top, margin = 17.dp)
                 start.linkTo(parent.start, margin = 20.dp)
                 bottom.linkTo(parent.bottom, margin = 17.dp)
             })
 
-        IconButton(onClick = { onFavoriteIconPressed(MainStateEvent.AddPokemonToFavorite(pokemon.name)) },
-            enabled = true,
-            modifier = Modifier.constrainAs(favoriteIcon) {
-                top.linkTo(parent.top, margin = 17.dp)
-                end.linkTo(parent.end, margin = 20.dp)
-                bottom.linkTo(parent.bottom, margin = 17.dp)
-            }) {
+        IconButton(onClick = {
+            onFavoriteIconPressed(
+                MainStateEvent.OnToggleFavoritePokemonButton(
+                    PokemonListSummary(name = pokemon.name, url = pokemon.url)
+                )
+            )
+        }, enabled = true, modifier = Modifier.constrainAs(favoriteIcon) {
+            top.linkTo(parent.top, margin = 17.dp)
+            end.linkTo(parent.end, margin = 20.dp)
+            bottom.linkTo(parent.bottom, margin = 17.dp)
+        }) {
 
             Image(
-                if (pokemon.isFavorite) painterResource(id = R.drawable.star_enabled) else painterResource(
+                if (pokemonFavoriteList.contains(pokemon)) painterResource(id = R.drawable.star_enabled) else painterResource(
                     id = R.drawable.star_disabled
                 ),
+                contentDescription = null,
+            )
+        }
+    }
+}
+
+@Composable
+fun PokemonFavoriteListItem(
+    pokemon: PokemonListSummary,
+    onPokemonItemSelected: (MainStateEvent) -> Unit,
+    onFavoriteIconPressed: (MainStateEvent) -> Unit
+) {
+    ConstraintLayout(modifier = Modifier
+        .clickable {
+            onPokemonItemSelected(
+                MainStateEvent.GetPokemonByUrl(
+                    pokemon.url
+                )
+            )
+        }
+        .padding(horizontal = 30.dp, vertical = 2.dp)
+        .background(Color.White)
+        .fillMaxWidth()) {
+
+        val (name, favoriteIcon) = createRefs()
+
+        Text(text = pokemon.name.replaceFirstChar { char -> char.uppercaseChar() },
+            modifier = Modifier.constrainAs(name) {
+                top.linkTo(parent.top, margin = 17.dp)
+                start.linkTo(parent.start, margin = 20.dp)
+                bottom.linkTo(parent.bottom, margin = 17.dp)
+            })
+
+        IconButton(onClick = {
+            onFavoriteIconPressed(
+                MainStateEvent.RemovePokemonFromFavorites(pokemon)
+            )
+        }, enabled = true, modifier = Modifier.constrainAs(favoriteIcon) {
+            top.linkTo(parent.top, margin = 17.dp)
+            end.linkTo(parent.end, margin = 20.dp)
+            bottom.linkTo(parent.bottom, margin = 17.dp)
+        }) {
+
+            Image(
+                painterResource(id = R.drawable.star_enabled),
                 contentDescription = null,
             )
         }
@@ -68,5 +116,5 @@ fun PokemonListItem(
 @Preview(showBackground = true)
 @Composable
 fun PokemonListItemPreview() {
-    PokemonListItem(PokemonListSummary(), {}, {})
+    PokemonListItem(PokemonListSummary(name = ""), {}, {}, mutableListOf())
 }

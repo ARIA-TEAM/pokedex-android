@@ -6,8 +6,6 @@ interface IMainInteractor {
 
     suspend fun getPokemon(pokemonName: String): MainViewState
    // suspend fun getPokemonByUrl(pokemonUrl: String): MainViewState
-
-    //suspend fun getFavoritePokemonList() : MainViewState
     suspend fun getPokemons(): MainViewState
 
 }
