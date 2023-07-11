@@ -1,8 +1,8 @@
 package com.example.pokedex.data.repositories
 
 import com.example.pokedex.data.mapper.PokemonMapper
+import com.example.pokedex.data.model.PokemonDetails
 import com.example.pokedex.data.model.PokemonListSummary
-import com.example.pokedex.data.model.PokemonSummary
 import com.example.pokedex.data.remote.datasources.PokemonDataSource
 import com.example.pokedex.data.repositories.abstraction.IMainPokemonRepository
 import javax.inject.Inject
@@ -12,9 +12,10 @@ class MainPokemonRepository @Inject constructor(
     private val pokemonMapper: PokemonMapper
 ) : IMainPokemonRepository {
 
-    override suspend fun getPokemon(pokemonName: String): PokemonSummary {
-        return pokemonMapper.remotePokemonToPokemonSummary(
-            pokemonDataSource.getPokemonByUrl(pokemonName)
+    //move mappers to UseCases(interactors) instead this.
+    override suspend fun getPokemon(pokemonNumberId: String): PokemonDetails {
+        return pokemonMapper.remotePokemonToPokemonDetails(
+            pokemonDataSource.getPokemonByUrl(pokemonNumberId)
         )
     }
 

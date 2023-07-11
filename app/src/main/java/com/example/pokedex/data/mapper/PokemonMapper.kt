@@ -1,41 +1,29 @@
 package com.example.pokedex.data.mapper
 
 import com.example.pokedex.data.model.PokemonListSummary
-import com.example.pokedex.data.model.PokemonSummary
-import com.example.pokedex.data.model.Type
+import com.example.pokedex.data.model.PokemonDetails
 import com.example.pokedex.data.remote.model.PokemonDetailResponse
 import com.example.pokedex.data.remote.model.PokemonListResponse
 import com.example.pokedex.data.remote.model.Types
-
 import javax.inject.Inject
 
 class PokemonMapper @Inject constructor() {
 
-    fun remotePokemonToPokemonSummary(pokemonResponse: PokemonDetailResponse): PokemonSummary {
+    fun remotePokemonToPokemonDetails(pokemonResponse: PokemonDetailResponse): PokemonDetails {
         return with(pokemonResponse) {
-            PokemonSummary(
-                name = name,
+            PokemonDetails(
+                pokemonName = name,
                 height = height,
                 weight = weight,
-                types = mapPokemonTypes(pokemonResponse.types)
+                types = mapPokemonTypesName(pokemonResponse.types),
+                pokemonImg = sprites.other.dreamWorld.frontDefault
             )
         }
     }
 
-    private fun mapPokemonTypes(types: List<Types>): List<com.example.pokedex.data.model.Types> {
-        return types.map {
-            com.example.pokedex.data.model.Types(
-                slot = it.slot, type = getPokemonType(it.type)
-            )
-        }
+    private fun mapPokemonTypesName(types: List<Types>): String {
+        return types.joinToString(", ") { it.type.name.replaceFirstChar { char -> char.uppercaseChar() } }
     }
-
-    private fun getPokemonType(type: com.example.pokedex.data.remote.model.Type): Type {
-        return Type(
-            name = type.name, url = type.url
-        )
-    }
-
 
     fun remotePokemonListResponseToPokemonListSummary(pokemonListResponse: PokemonListResponse): List<PokemonListSummary> {
         return with(pokemonListResponse) {
@@ -46,4 +34,3 @@ class PokemonMapper @Inject constructor() {
     }
 
 }
-

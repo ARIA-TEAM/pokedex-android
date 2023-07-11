@@ -6,30 +6,40 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.pokedex.R
+import com.example.pokedex.data.model.PokemonDetails
 import com.example.pokedex.data.model.PokemonListSummary
 import com.example.pokedex.ui.main.state.MainStateEvent
+import com.example.pokedex.ui.main.state.MainViewState
 
 @Composable
 fun PokemonListItem(
+    pokemonDetails: PokemonDetails?,
+    mainViewState: MainViewState,
+    pokemonNumberId: String,
     pokemon: PokemonListSummary,
     onPokemonItemSelected: (MainStateEvent) -> Unit,
     onFavoriteIconPressed: (MainStateEvent) -> Unit,
     pokemonFavoriteList: List<PokemonListSummary>
 ) {
+    val showDialog = remember { mutableStateOf(false) }
+
     ConstraintLayout(modifier = Modifier
         .clickable {
+            showDialog.value = true
             onPokemonItemSelected(
                 MainStateEvent.GetPokemonByUrl(
-                    pokemon.url
+                    pokemonNumberId = pokemonNumberId
                 )
             )
         }
@@ -44,7 +54,8 @@ fun PokemonListItem(
                 top.linkTo(parent.top, margin = 17.dp)
                 start.linkTo(parent.start, margin = 20.dp)
                 bottom.linkTo(parent.bottom, margin = 17.dp)
-            })
+            }, style = MaterialTheme.typography.titleMedium
+        )
 
         IconButton(onClick = {
             onFavoriteIconPressed(
@@ -65,7 +76,19 @@ fun PokemonListItem(
                 contentDescription = null,
             )
         }
+        if (showDialog.value) {
+            if (pokemonDetails != null) {
+                CustomPokemonDetailDialog(
+                    onDismiss = { showDialog.value = !showDialog.value },
+                    onExit = { },
+                    pokemonDetails = pokemonDetails
+                ) {
+                    PokemonImgFromUrl(url = pokemonDetails.pokemonImg)
+                }
+            }
+        }
     }
+
 }
 
 @Composable
@@ -111,10 +134,4 @@ fun PokemonFavoriteListItem(
             )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PokemonListItemPreview() {
-    PokemonListItem(PokemonListSummary(name = ""), {}, {}, mutableListOf())
 }

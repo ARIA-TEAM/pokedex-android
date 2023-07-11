@@ -1,7 +1,7 @@
 package com.example.pokedex.ui.main.state
 
+import com.example.pokedex.data.model.PokemonDetails
 import com.example.pokedex.data.model.PokemonListSummary
-import com.example.pokedex.data.model.PokemonSummary
 import com.example.pokedex.data.remote.model.ErrorResponse
 import com.example.pokedex.ui.base.ViewState
 
@@ -11,7 +11,7 @@ sealed class MainViewState : ViewState {
     object Loading : MainViewState()
 
     data class GetPokemonSuccess(
-        val pokemonSummary: PokemonSummary
+        val pokemonDetail: PokemonDetails
     ) : MainViewState()
 
     data class GetPokemonListSuccess(

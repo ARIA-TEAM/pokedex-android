@@ -1,12 +1,11 @@
 package com.example.pokedex.data.repositories.abstraction
 
+import com.example.pokedex.data.model.PokemonDetails
 import com.example.pokedex.data.model.PokemonListSummary
-import com.example.pokedex.data.model.PokemonSummary
 
 interface IMainPokemonRepository {
 
-    suspend fun getPokemon(pokemonName: String): PokemonSummary
-    //suspend fun getPokemonByUrl(pokemonName: String): PokemonSummary
+    suspend fun getPokemon(pokemonNumberId: String): PokemonDetails
     suspend fun getPokemons(): List<PokemonListSummary>
 
 }

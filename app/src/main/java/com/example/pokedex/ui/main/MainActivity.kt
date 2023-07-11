@@ -35,7 +35,9 @@ class MainActivity : BaseActivity<MainViewState>() {
                 ) {
                     val viewState by viewModel.viewData.collectAsState()
                     val favoritePokemonList by viewModel.pokemonFavoriteList.collectAsState()
+                    val pokemonDetails by viewModel.pokemonDetails.collectAsState()
                     PokedexAppNavHost(
+                        pokemonDetails = pokemonDetails,
                         mainViewState = viewState,
                         favoritePokemonList = favoritePokemonList,
                         navController = navController
@@ -44,7 +46,6 @@ class MainActivity : BaseActivity<MainViewState>() {
             }
         }
     }
-
 
     override fun render(viewState: MainViewState) {
         when (viewState) {
@@ -58,5 +59,4 @@ class MainActivity : BaseActivity<MainViewState>() {
             else -> Unit
         }
     }
-
 }

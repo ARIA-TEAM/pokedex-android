@@ -1,6 +1,7 @@
 package com.example.pokedex.ui.main
 
 import androidx.lifecycle.viewModelScope
+import com.example.pokedex.data.model.PokemonDetails
 import com.example.pokedex.data.model.PokemonListSummary
 import com.example.pokedex.interactors.abstraction.IMainInteractor
 import com.example.pokedex.ui.base.BaseViewModel
@@ -18,6 +19,11 @@ class MainViewModel @Inject constructor(
     private val mainInteractor: IMainInteractor
 ) : BaseViewModel<MainViewState>() {
 
+    private val _pokemonDetails: MutableStateFlow<PokemonDetails?> by lazy {
+        MutableStateFlow(null)
+    }
+    val pokemonDetails: StateFlow<PokemonDetails?> = _pokemonDetails
+
     private val _pokemonFavoriteList: MutableStateFlow<List<PokemonListSummary>> by lazy {
         MutableStateFlow(mutableListOf())
     }
@@ -26,7 +32,7 @@ class MainViewModel @Inject constructor(
 
     private fun onToggleFavoritePokemonButton(pokemon: PokemonListSummary) {
         val currentFavorites = _pokemonFavoriteList.value.toMutableList()
-        if (!currentFavorites.contains(pokemon)) {
+         if (!currentFavorites.contains(pokemon)) {
             val updatedPokemonFavoriteList = _pokemonFavoriteList.value.toMutableList().apply {
                 add(pokemon)
             }
@@ -44,11 +50,11 @@ class MainViewModel @Inject constructor(
         }
     }
 
-
     override val _viewData = MutableStateFlow<MainViewState>(MainViewState.Idle)
 
     override fun setStateEvent(stateEvent: StateEvent) {
         when (stateEvent) {
+            is MainStateEvent.GetPokemonByUrl -> getPokemon(stateEvent.pokemonNumberId)
             is MainStateEvent.GetPokemon -> getPokemon(stateEvent.pokemonName)
             is MainStateEvent.GetPokemons -> getPokemons()
             is MainStateEvent.GetPokemonFavoriteList -> {}
@@ -57,23 +63,12 @@ class MainViewModel @Inject constructor(
             )
 
             is MainStateEvent.RemovePokemonFromFavorites -> removePokemonFromFavorites(stateEvent.pokemon)
-            // is MainStateEvent.GetPokemonByUrl -> getPokemonByUrl(stateEvent.pokemonUrl)
         }
     }
 
-    /*
-        private fun getPokemonByUrl(pokemonUrl: String) {
-            _viewData.value = MainViewState.Loading
-            viewModelScope.launch {
-                _viewData.value = mainInteractor.getPokemon()
-            }
-        }
-    */
-
-    private fun getPokemon(pokemonName: String) {
-        _viewData.value = MainViewState.Loading
+    private fun getPokemon(pokemonNumberId: String) {
         viewModelScope.launch {
-            _viewData.value = mainInteractor.getPokemon(pokemonName)
+            _pokemonDetails.value = mainInteractor.getPokemon(pokemonNumberId)
         }
     }
 

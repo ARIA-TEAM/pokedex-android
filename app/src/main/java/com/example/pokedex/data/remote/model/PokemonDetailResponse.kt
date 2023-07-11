@@ -6,7 +6,20 @@ data class PokemonDetailResponse(
     @SerializedName("name") val name: String,
     @SerializedName("weight") val weight: Int,
     @SerializedName("height") val height: Int,
-    @SerializedName("types") val types: List<Types>
+    @SerializedName("types") val types: List<Types>,
+    @SerializedName("sprites") val sprites: Sprites
+)
+
+data class Sprites(
+    @SerializedName("other") val other: Other
+)
+
+data class Other(
+    @SerializedName("dream_world") val dreamWorld: DreamWorld
+)
+
+data class DreamWorld(
+    @SerializedName("front_default") val frontDefault: String
 )
 
 data class Types(

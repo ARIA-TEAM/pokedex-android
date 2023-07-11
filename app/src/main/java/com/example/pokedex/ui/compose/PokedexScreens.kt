@@ -39,6 +39,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.pokedex.R
+import com.example.pokedex.data.model.PokemonDetails
 import com.example.pokedex.data.model.PokemonListSummary
 import com.example.pokedex.ui.main.MainViewModel
 import com.example.pokedex.ui.main.state.MainStateEvent
@@ -49,6 +50,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun PokedexAppNavHost(
+    pokemonDetails: PokemonDetails?,
     mainViewState: MainViewState,
     favoritePokemonList: List<PokemonListSummary>,
     navController: NavHostController,
@@ -67,6 +69,7 @@ fun PokedexAppNavHost(
         }
         composable(PokedexMainScreens.MainScreen.route) {
             PokedexMainScreen(
+                pokemonDetails = pokemonDetails,
                 mainViewState = mainViewState,
                 favoritePokemonList = favoritePokemonList,
                 onPokemonItemSelected = viewModel::setStateEvent,
@@ -115,6 +118,7 @@ fun DetailScreen(
 
 @Composable
 fun PokemonListScreen(
+    pokemonDetails: PokemonDetails?,
     mainViewState: MainViewState,
     navController: NavHostController,
     onPokemonItemSelected: (MainStateEvent) -> Unit,
@@ -124,6 +128,8 @@ fun PokemonListScreen(
     when (mainViewState) {
         is MainViewState.Loading -> ShowLoader()
         is MainViewState.GetPokemonListSuccess -> ShowPokemonList(
+            pokemonDetails = pokemonDetails,
+            mainViewState = mainViewState,
             pokemonListSummary = mainViewState.pokemonListSummary,
             onPokemonItemSelected = onPokemonItemSelected,
             onFavoriteIconPressed = onFavoriteIconPressed,
@@ -138,6 +144,8 @@ fun PokemonListScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShowPokemonList(
+    pokemonDetails: PokemonDetails?,
+    mainViewState: MainViewState,
     pokemonListSummary: List<PokemonListSummary>,
     onPokemonItemSelected: (MainStateEvent) -> Unit,
     onFavoriteIconPressed: (MainStateEvent) -> Unit,
@@ -178,15 +186,17 @@ fun ShowPokemonList(
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(pokemonListSummary.size) {
                 PokemonListItem(
+                    pokemonDetails = pokemonDetails,
+                    mainViewState = mainViewState,
+                    pokemonNumberId = it.plus(1).toString(),
                     pokemonListSummary[it],
                     onPokemonItemSelected = onPokemonItemSelected,
                     onFavoriteIconPressed = onFavoriteIconPressed,
-                    pokemonFavoriteList = pokemonFavoriteList
+                    pokemonFavoriteList = pokemonFavoriteList,
                 )
             }
         }
     }
-
 }
 
 
@@ -239,10 +249,24 @@ fun ShowPokemonFavoriteList(
                 }
             }
         } else {
-            Text(text = "No pokemons")
-            Text(
-                text = "The digital encyclopedia created by Professor Oak is an " + "invaluable tool to Trainers in the Pokémon world."
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 30.dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.no_pokemon_favorites_list_title),
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Text(
+                    modifier = Modifier.padding(top = 16.dp),
+                    text = stringResource(
+                        id = R.string.no_pokemon_favorites_list_sub_title
+                    ),
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
         }
     }
 
@@ -263,9 +287,7 @@ fun ShowLoader() {
         ) {
             Image(painter = painterResource(id = R.drawable.loader), contentDescription = null)
         }
-
     }
-
 }
 
 @Composable

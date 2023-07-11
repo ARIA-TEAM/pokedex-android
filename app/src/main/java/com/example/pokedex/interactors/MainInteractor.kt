@@ -1,7 +1,7 @@
 package com.example.pokedex.interactors
 
 import com.example.pokedex.data.model.PokemonListSummary
-import com.example.pokedex.data.model.PokemonSummary
+import com.example.pokedex.data.model.PokemonDetails
 import com.example.pokedex.data.remote.HttpClient
 import com.example.pokedex.data.remote.RequestResult
 import com.example.pokedex.data.repositories.abstraction.IMainPokemonRepository
@@ -16,21 +16,17 @@ class MainInteractor @Inject constructor(
     private val coroutineDispatcher: CoroutineDispatcher
 ) : IMainInteractor {
 
-    override suspend fun getPokemon(pokemonName: String): MainViewState {
+    override suspend fun getPokemon(pokemonNumberId: String): PokemonDetails {
         val result = httpClient.safeApiCall(coroutineDispatcher) {
-            mainPokemonRepository.getPokemon(pokemonName)
+            mainPokemonRepository.getPokemon(pokemonNumberId)
         }
 
         return when (result) {
             is RequestResult.Success -> {
-                MainViewState.GetPokemonSuccess(result.data ?: PokemonSummary())
+                result.data!!
             }
 
-            is RequestResult.RequestError -> {
-                MainViewState.GetPokemonError(result.errorResponse)
-            }
-
-            else -> MainViewState.Idle
+            else -> PokemonDetails()
         }
     }
 

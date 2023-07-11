@@ -11,3 +11,4 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 val Gray = Color(0xFFF9F9F9)
+val GrayDialogSeparator = Color(0xFFE8E8E8)

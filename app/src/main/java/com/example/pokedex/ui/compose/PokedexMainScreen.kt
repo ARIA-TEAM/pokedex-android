@@ -25,6 +25,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.pokedex.data.model.PokemonDetails
 import com.example.pokedex.data.model.PokemonListSummary
 import com.example.pokedex.ui.main.state.CoreScreen
 import com.example.pokedex.ui.main.state.MainStateEvent
@@ -33,6 +34,7 @@ import com.example.pokedex.ui.main.state.MainViewState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PokedexMainScreen(
+    pokemonDetails: PokemonDetails?,
     mainViewState: MainViewState,
     favoritePokemonList: List<PokemonListSummary>,
     onPokemonItemSelected: (MainStateEvent) -> Unit,
@@ -120,6 +122,7 @@ fun PokedexMainScreen(
         ) {
             composable(CoreScreen.All.route) {
                 PokemonListScreen(
+                    pokemonDetails = pokemonDetails,
                     mainViewState = mainViewState,
                     navController,
                     onPokemonItemSelected = onPokemonItemSelected,
