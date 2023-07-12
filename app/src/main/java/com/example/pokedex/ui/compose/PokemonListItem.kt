@@ -49,7 +49,8 @@ fun PokemonListItem(
 
         val (name, favoriteIcon) = createRefs()
 
-        Text(text = pokemon.name.replaceFirstChar { char -> char.uppercaseChar() },
+        Text(
+            text = pokemon.name.replaceFirstChar { char -> char.uppercaseChar() },
             modifier = Modifier.constrainAs(name) {
                 top.linkTo(parent.top, margin = 17.dp)
                 start.linkTo(parent.start, margin = 20.dp)
@@ -81,14 +82,16 @@ fun PokemonListItem(
                 CustomPokemonDetailDialog(
                     onDismiss = { showDialog.value = !showDialog.value },
                     onExit = { },
-                    pokemonDetails = pokemonDetails
+                    pokemonDetails = pokemonDetails,
+                    pokemon = pokemon,
+                    pokemonFavoriteList = pokemonFavoriteList,
+                    onFavoriteIconPressed = onFavoriteIconPressed
                 ) {
                     PokemonImgFromUrl(url = pokemonDetails.pokemonImg)
                 }
             }
         }
     }
-
 }
 
 @Composable

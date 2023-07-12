@@ -266,6 +266,12 @@ fun ShowPokemonFavoriteList(
                     ),
                     style = MaterialTheme.typography.titleMedium
                 )
+                Button(
+                    modifier = Modifier.padding(top = 25.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                    onClick = {}) {
+                    Text(text = stringResource(id = R.string.go_back_button_title))
+                }
             }
         }
     }
@@ -346,7 +352,7 @@ fun PokedexGetStartedScreen(
             onGetEvent(MainStateEvent.GetPokemons)
             navController.navigate(PokedexMainScreens.MainScreen.route)
         }) {
-            Text(text = "Get Started")
+            Text(text = stringResource(id = R.string.get_started_screen_title))
         }
     }
 

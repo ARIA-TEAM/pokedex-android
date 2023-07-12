@@ -2,6 +2,7 @@ package com.example.pokedex.ui.compose
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -37,14 +40,19 @@ import coil.decode.SvgDecoder
 import coil.request.ImageRequest
 import com.example.pokedex.R
 import com.example.pokedex.data.model.PokemonDetails
+import com.example.pokedex.data.model.PokemonListSummary
+import com.example.pokedex.ui.main.state.MainStateEvent
 import com.example.pokedex.ui.theme.GrayDialogSeparator
 
 @Composable
 fun CustomPokemonDetailDialog(
+    pokemon: PokemonListSummary,
+    onFavoriteIconPressed: (MainStateEvent) -> Unit,
     onDismiss: () -> Unit,
     onExit: () -> Unit,
     pokemonDetails: PokemonDetails,
-    content: @Composable () -> Unit
+    pokemonFavoriteList: List<PokemonListSummary>,
+    content: @Composable () -> Unit,
 ) {
 
     Dialog(
@@ -90,20 +98,57 @@ fun CustomPokemonDetailDialog(
                         contentAlignment = Alignment.TopEnd,
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(16.dp)
+                            .padding(end = 2.dp, top = 2.dp)
                     ) {
                         IconButton(onClick = { onDismiss() }) {
                             Image(
                                 painter = painterResource(id = R.drawable.close_detail_dialog),
-                                contentDescription = "Close",
-                                modifier = Modifier.padding(8.dp)
+                                contentDescription = "Close"
                             )
                         }
                     }
                 }
                 //info pokemon here
                 DialogPokemonInfoDetail(pokemonDetails = pokemonDetails)
+                DialogButtonsComponent(
+                    pokemonFavoriteList = pokemonFavoriteList,
+                    pokemon = pokemon,
+                    onFavoriteIconPressed = onFavoriteIconPressed
+                )
             }
+        }
+    }
+}
+
+@Composable
+fun DialogButtonsComponent(
+    pokemonFavoriteList: List<PokemonListSummary>,
+    pokemon: PokemonListSummary,
+    onFavoriteIconPressed: (MainStateEvent) -> Unit
+) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 30.dp, vertical = 10.dp)
+    ) {
+        Button(modifier = Modifier,
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+            onClick = {}) {
+            Text(text = stringResource(id = R.string.shared_button_title))
+        }
+        IconButton(onClick = {
+            onFavoriteIconPressed(
+                MainStateEvent.OnToggleFavoritePokemonButton(
+                    PokemonListSummary(name = pokemon.name, url = pokemon.url)
+                )
+            )
+        }, enabled = true) {
+
+            Image(
+                if (pokemonFavoriteList.contains(pokemon)) painterResource(id = R.drawable.star_enabled)
+                else painterResource(id = R.drawable.star_disabled), contentDescription = null
+            )
         }
     }
 }
@@ -145,7 +190,7 @@ fun ShowDialog(imageUrl: String) {
 
 @Composable
 fun DialogPokemonInfoDetail(pokemonDetails: PokemonDetails) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -157,13 +202,16 @@ fun DialogPokemonInfoDetail(pokemonDetails: PokemonDetails) {
             )
             Text(
                 text = pokemonDetails.pokemonName.replaceFirstChar { char -> char.uppercaseChar() },
-                Modifier.padding(start = 4.dp), fontSize = 18.sp
+                Modifier.padding(start = 4.dp),
+                fontSize = 18.sp
             )
         }
         Divider(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 30.dp), color = GrayDialogSeparator, thickness = 1.dp
+                .padding(horizontal = 30.dp),
+            color = GrayDialogSeparator,
+            thickness = 1.dp
         )
         Row(
             modifier = Modifier
@@ -183,7 +231,9 @@ fun DialogPokemonInfoDetail(pokemonDetails: PokemonDetails) {
         Divider(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 30.dp), color = GrayDialogSeparator, thickness = 1.dp
+                .padding(horizontal = 30.dp),
+            color = GrayDialogSeparator,
+            thickness = 1.dp
         )
         Row(
             modifier = Modifier
@@ -203,7 +253,9 @@ fun DialogPokemonInfoDetail(pokemonDetails: PokemonDetails) {
         Divider(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 30.dp), color = GrayDialogSeparator, thickness = 1.dp
+                .padding(horizontal = 30.dp),
+            color = GrayDialogSeparator,
+            thickness = 1.dp
         )
         Row(
             modifier = Modifier
@@ -219,7 +271,9 @@ fun DialogPokemonInfoDetail(pokemonDetails: PokemonDetails) {
         Divider(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 30.dp), color = GrayDialogSeparator, thickness = 1.dp
+                .padding(horizontal = 30.dp),
+            color = GrayDialogSeparator,
+            thickness = 1.dp
         )
     }
 }

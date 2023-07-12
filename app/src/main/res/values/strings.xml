@@ -56,4 +56,7 @@
     <string name="pokemon_info_dialog_types"> Types: </string>
     <string name="no_pokemon_favorites_list_title"> Uh-oh! </string>
     <string name="no_pokemon_favorites_list_sub_title"> You look lost on your journey! </string>
+    <string name="get_started_button_title">Get Started</string>
+    <string name="shared_button_title">Share to my friends</string>
+    <string name="go_back_button_title">Go back home</string>
 </resources>
