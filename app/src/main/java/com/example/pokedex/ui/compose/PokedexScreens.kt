@@ -51,6 +51,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun PokedexAppNavHost(
     pokemonDetails: PokemonDetails?,
+    pokemonAllList: List<PokemonListSummary>,
     mainViewState: MainViewState,
     favoritePokemonList: List<PokemonListSummary>,
     navController: NavHostController,
@@ -62,18 +63,19 @@ fun PokedexAppNavHost(
         composable(PokedexMainScreens.SplashScreen.route) { PokedexSplashScreen(navController) }
         composable(PokedexMainScreens.GetStartedScreen.route) {
             PokedexGetStartedScreen(
-                mainViewState = mainViewState,
-                navController = navController,
-                viewModel::setStateEvent
+                //   mainViewState = mainViewState,
+                navController = navController, viewModel::setStateEvent
             )
         }
         composable(PokedexMainScreens.MainScreen.route) {
             PokedexMainScreen(
                 pokemonDetails = pokemonDetails,
+                pokemonAllList = pokemonAllList,
                 mainViewState = mainViewState,
                 favoritePokemonList = favoritePokemonList,
                 onPokemonItemSelected = viewModel::setStateEvent,
-                onFavoriteIconPressed = viewModel::setStateEvent
+                onFavoriteIconPressed = viewModel::setStateEvent,
+                onPokemonListFiltered = viewModel::setStateEvent
             )
         }
     }
@@ -119,24 +121,28 @@ fun DetailScreen(
 @Composable
 fun PokemonListScreen(
     pokemonDetails: PokemonDetails?,
+    pokemonAllList: List<PokemonListSummary>,
     mainViewState: MainViewState,
     navController: NavHostController,
     onPokemonItemSelected: (MainStateEvent) -> Unit,
     onFavoriteIconPressed: (MainStateEvent) -> Unit,
+    onPokemonListFiltered: (MainStateEvent) -> Unit,
     pokemonFavoriteList: List<PokemonListSummary>
 ) {
+
     when (mainViewState) {
         is MainViewState.Loading -> ShowLoader()
-        is MainViewState.GetPokemonListSuccess -> ShowPokemonList(
-            pokemonDetails = pokemonDetails,
-            mainViewState = mainViewState,
-            pokemonListSummary = mainViewState.pokemonListSummary,
-            onPokemonItemSelected = onPokemonItemSelected,
-            onFavoriteIconPressed = onFavoriteIconPressed,
-            pokemonFavoriteList = pokemonFavoriteList
-        )
-
-        else -> Unit
+        else -> {
+            ShowPokemonList(
+                pokemonDetails = pokemonDetails,
+                mainViewState = mainViewState,
+                pokemonListSummary = pokemonAllList,
+                onPokemonItemSelected = onPokemonItemSelected,
+                onFavoriteIconPressed = onFavoriteIconPressed,
+                onPokemonListFiltered = onPokemonListFiltered,
+                pokemonFavoriteList = pokemonFavoriteList
+            )
+        }
     }
 
 }
@@ -149,6 +155,7 @@ fun ShowPokemonList(
     pokemonListSummary: List<PokemonListSummary>,
     onPokemonItemSelected: (MainStateEvent) -> Unit,
     onFavoriteIconPressed: (MainStateEvent) -> Unit,
+    onPokemonListFiltered: (MainStateEvent) -> Unit,
     pokemonFavoriteList: List<PokemonListSummary>
 ) {
 
@@ -160,14 +167,19 @@ fun ShowPokemonList(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        var text by remember { mutableStateOf(TextFieldValue("")) }
+        var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
+
+        LaunchedEffect(key1 = searchQuery) {
+            onPokemonListFiltered(MainStateEvent.OnFilterPokemonList(searchQuery = searchQuery.text))
+        }
+
         TextField(
             leadingIcon = {
                 Icon(imageVector = Icons.Filled.Search, contentDescription = null)
             },
-            value = text,
+            value = searchQuery,
             onValueChange = { textFieldValue ->
-                text = textFieldValue
+                searchQuery = textFieldValue
             },
             placeholder = { Text(text = "Search") },
             modifier = Modifier
@@ -187,8 +199,6 @@ fun ShowPokemonList(
             items(pokemonListSummary.size) {
                 PokemonListItem(
                     pokemonDetails = pokemonDetails,
-                    mainViewState = mainViewState,
-                    pokemonNumberId = it.plus(1).toString(),
                     pokemonListSummary[it],
                     onPokemonItemSelected = onPokemonItemSelected,
                     onFavoriteIconPressed = onFavoriteIconPressed,
@@ -260,14 +270,11 @@ fun ShowPokemonFavoriteList(
                     style = MaterialTheme.typography.titleLarge
                 )
                 Text(
-                    modifier = Modifier.padding(top = 16.dp),
-                    text = stringResource(
+                    modifier = Modifier.padding(top = 16.dp), text = stringResource(
                         id = R.string.no_pokemon_favorites_list_sub_title
-                    ),
-                    style = MaterialTheme.typography.titleMedium
+                    ), style = MaterialTheme.typography.titleMedium
                 )
-                Button(
-                    modifier = Modifier.padding(top = 25.dp),
+                Button(modifier = Modifier.padding(top = 25.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
                     onClick = {}) {
                     Text(text = stringResource(id = R.string.go_back_button_title))
@@ -298,9 +305,8 @@ fun ShowLoader() {
 
 @Composable
 fun PokedexGetStartedScreen(
-    mainViewState: MainViewState,
-    navController: NavHostController,
-    onGetEvent: (MainStateEvent) -> Unit
+    // mainViewState: MainViewState,
+    navController: NavHostController, onGetEvent: (MainStateEvent) -> Unit
 ) {
     ConstraintLayout(
         modifier = Modifier

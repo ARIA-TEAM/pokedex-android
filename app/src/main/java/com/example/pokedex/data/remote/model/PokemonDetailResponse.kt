@@ -15,11 +15,17 @@ data class Sprites(
 )
 
 data class Other(
-    @SerializedName("dream_world") val dreamWorld: DreamWorld
+    @SerializedName("dream_world") val dreamWorld: DreamWorld,
+    @SerializedName("official-artwork") val officialArtwork: OfficialArtwork
+)
+
+data class OfficialArtwork(
+    @SerializedName("front_default") val frontDefault: String?,
+    @SerializedName("front_shiny") val frontShiny: String?
 )
 
 data class DreamWorld(
-    @SerializedName("front_default") val frontDefault: String
+    @SerializedName("front_default") val frontDefault: String?
 )
 
 data class Types(
@@ -35,8 +41,6 @@ data class PokemonListResponse(
     @SerializedName("next") val next: String,
     @SerializedName("previous") val previous: String?,
     @SerializedName("results") val results: List<PokemonListDetail>
-
-
 )
 
 data class PokemonListDetail(

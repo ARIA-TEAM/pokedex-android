@@ -19,14 +19,12 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.pokedex.R
 import com.example.pokedex.data.model.PokemonDetails
 import com.example.pokedex.data.model.PokemonListSummary
+import com.example.pokedex.ui.compose.utils.StringUtils
 import com.example.pokedex.ui.main.state.MainStateEvent
-import com.example.pokedex.ui.main.state.MainViewState
 
 @Composable
 fun PokemonListItem(
     pokemonDetails: PokemonDetails?,
-    mainViewState: MainViewState,
-    pokemonNumberId: String,
     pokemon: PokemonListSummary,
     onPokemonItemSelected: (MainStateEvent) -> Unit,
     onFavoriteIconPressed: (MainStateEvent) -> Unit,
@@ -39,7 +37,7 @@ fun PokemonListItem(
             showDialog.value = true
             onPokemonItemSelected(
                 MainStateEvent.GetPokemonByUrl(
-                    pokemonNumberId = pokemonNumberId
+                    StringUtils.convertPokemonUrl(pokemon.url)
                 )
             )
         }

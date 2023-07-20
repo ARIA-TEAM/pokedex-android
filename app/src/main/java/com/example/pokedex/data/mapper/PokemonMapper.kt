@@ -17,6 +17,7 @@ class PokemonMapper @Inject constructor() {
                 weight = weight,
                 types = mapPokemonTypesName(pokemonResponse.types),
                 pokemonImg = sprites.other.dreamWorld.frontDefault
+                    ?: sprites.other.officialArtwork.frontDefault
             )
         }
     }

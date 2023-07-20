@@ -5,7 +5,7 @@ import com.example.pokedex.data.model.PokemonListSummary
 
 interface IMainPokemonRepository {
 
-    suspend fun getPokemon(pokemonNumberId: String): PokemonDetails
+    suspend fun getPokemon(pokemonUrl: String): PokemonDetails
     suspend fun getPokemons(): List<PokemonListSummary>
 
 }

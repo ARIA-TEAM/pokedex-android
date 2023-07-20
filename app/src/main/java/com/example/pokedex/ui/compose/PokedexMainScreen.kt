@@ -3,6 +3,7 @@ package com.example.pokedex.ui.compose
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -35,10 +36,12 @@ import com.example.pokedex.ui.main.state.MainViewState
 @Composable
 fun PokedexMainScreen(
     pokemonDetails: PokemonDetails?,
+    pokemonAllList: List<PokemonListSummary>,
     mainViewState: MainViewState,
     favoritePokemonList: List<PokemonListSummary>,
     onPokemonItemSelected: (MainStateEvent) -> Unit,
-    onFavoriteIconPressed: (MainStateEvent) -> Unit
+    onFavoriteIconPressed: (MainStateEvent) -> Unit,
+    onPokemonListFiltered: (MainStateEvent) -> Unit,
 ) {
     val navController = rememberNavController()
     Scaffold(containerColor = Color.Gray, bottomBar = {
@@ -56,12 +59,15 @@ fun PokedexMainScreen(
                 val (buttonAll, buttonFavorites) = createRefs()
 
                 Button(
-                    modifier = Modifier.constrainAs(buttonAll) {
-                        start.linkTo(parent.start, margin = 30.dp)
-                        end.linkTo(buttonFavorites.start, margin = 30.dp)
-                        top.linkTo(parent.top, margin = 10.dp)
-                        bottom.linkTo(parent.bottom, margin = 10.dp)
-                    },
+                    modifier = Modifier
+                        .width(150.dp)
+                        .height(44.dp)
+                        .constrainAs(buttonAll) {
+                            start.linkTo(parent.start)
+                            end.linkTo(buttonFavorites.start, margin = 30.dp)
+                            top.linkTo(parent.top, margin = 10.dp)
+                            bottom.linkTo(parent.bottom, margin = 10.dp)
+                        },
                     onClick = {
                         navController.navigate(CoreScreen.All.route) {
                             // Pop up to the start destination of the graph to
@@ -85,12 +91,15 @@ fun PokedexMainScreen(
                     Text(text = "All")
                 }
                 Button(
-                    modifier = Modifier.constrainAs(buttonFavorites) {
-                        start.linkTo(buttonAll.end)
-                        top.linkTo(parent.top, margin = 10.dp)
-                        bottom.linkTo(parent.bottom, margin = 10.dp)
-                        end.linkTo(parent.end, margin = 10.dp)
-                    },
+                    modifier = Modifier
+                        .width(150.dp)
+                        .height(44.dp)
+                        .constrainAs(buttonFavorites) {
+                            start.linkTo(buttonAll.end)
+                            top.linkTo(parent.top, margin = 10.dp)
+                            bottom.linkTo(parent.bottom, margin = 10.dp)
+                            end.linkTo(parent.end)
+                        },
                     onClick = {
                         navController.navigate(CoreScreen.Favorites.route) {
                             // Pop up to the start destination of the graph to
@@ -123,11 +132,13 @@ fun PokedexMainScreen(
             composable(CoreScreen.All.route) {
                 PokemonListScreen(
                     pokemonDetails = pokemonDetails,
+                    pokemonAllList = pokemonAllList,
                     mainViewState = mainViewState,
                     navController,
                     onPokemonItemSelected = onPokemonItemSelected,
                     onFavoriteIconPressed = onFavoriteIconPressed,
-                    pokemonFavoriteList = favoritePokemonList
+                    pokemonFavoriteList = favoritePokemonList,
+                    onPokemonListFiltered = onPokemonListFiltered
                 )
             }
             composable(CoreScreen.Favorites.route) {

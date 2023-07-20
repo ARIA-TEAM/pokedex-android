@@ -30,9 +30,19 @@ class MainViewModel @Inject constructor(
 
     val pokemonFavoriteList: StateFlow<List<PokemonListSummary>> = _pokemonFavoriteList
 
+    private val _pokemonAllList: MutableStateFlow<List<PokemonListSummary>> by lazy {
+        MutableStateFlow(mutableListOf())
+    }
+
+    private val _pokemonFilteredList: MutableStateFlow<List<PokemonListSummary>> by lazy {
+        MutableStateFlow(mutableListOf())
+    }
+
+    val pokemonAllList: StateFlow<List<PokemonListSummary>> = _pokemonFilteredList
+
     private fun onToggleFavoritePokemonButton(pokemon: PokemonListSummary) {
         val currentFavorites = _pokemonFavoriteList.value.toMutableList()
-         if (!currentFavorites.contains(pokemon)) {
+        if (!currentFavorites.contains(pokemon)) {
             val updatedPokemonFavoriteList = _pokemonFavoriteList.value.toMutableList().apply {
                 add(pokemon)
             }
@@ -54,28 +64,42 @@ class MainViewModel @Inject constructor(
 
     override fun setStateEvent(stateEvent: StateEvent) {
         when (stateEvent) {
-            is MainStateEvent.GetPokemonByUrl -> getPokemon(stateEvent.pokemonNumberId)
-            is MainStateEvent.GetPokemon -> getPokemon(stateEvent.pokemonName)
+            is MainStateEvent.GetPokemonByUrl -> getPokemon(stateEvent.pokemonUrl)
             is MainStateEvent.GetPokemons -> getPokemons()
             is MainStateEvent.GetPokemonFavoriteList -> {}
             is MainStateEvent.OnToggleFavoritePokemonButton -> onToggleFavoritePokemonButton(
                 stateEvent.pokemon
             )
-
+            is MainStateEvent.OnFilterPokemonList -> filterPokemonList(stateEvent.searchQuery)
             is MainStateEvent.RemovePokemonFromFavorites -> removePokemonFromFavorites(stateEvent.pokemon)
         }
     }
 
-    private fun getPokemon(pokemonNumberId: String) {
+    private fun getPokemon(pokemonUrl: String) {
         viewModelScope.launch {
-            _pokemonDetails.value = mainInteractor.getPokemon(pokemonNumberId)
+            _pokemonDetails.value = mainInteractor.getPokemon(pokemonUrl)
         }
     }
 
     private fun getPokemons() {
         _viewData.value = MainViewState.Loading
         viewModelScope.launch {
-            _viewData.value = mainInteractor.getPokemons()
+            _pokemonAllList.value = mainInteractor.getPokemons()
+            _pokemonFilteredList.value = mainInteractor.getPokemons()
+            _viewData.value = MainViewState.Idle
+        }
+    }
+
+    private fun filterPokemonList(query: String) {
+        viewModelScope.launch {
+            if (query.isBlank()) {
+                _pokemonFilteredList.value = _pokemonAllList.value
+            } else {
+                val filteredList = _pokemonAllList.value.filter { pokemon ->
+                    pokemon.name.contains(query, ignoreCase = true)
+                }
+                _pokemonFilteredList.value = filteredList
+            }
         }
     }
 

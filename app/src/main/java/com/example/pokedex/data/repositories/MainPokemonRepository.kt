@@ -13,9 +13,9 @@ class MainPokemonRepository @Inject constructor(
 ) : IMainPokemonRepository {
 
     //move mappers to UseCases(interactors) instead this.
-    override suspend fun getPokemon(pokemonNumberId: String): PokemonDetails {
+    override suspend fun getPokemon(pokemonUrl: String): PokemonDetails {
         return pokemonMapper.remotePokemonToPokemonDetails(
-            pokemonDataSource.getPokemonByUrl(pokemonNumberId)
+            pokemonDataSource.getPokemonByUrl(pokemonUrl)
         )
     }
 

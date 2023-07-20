@@ -6,7 +6,6 @@ import com.example.pokedex.data.remote.HttpClient
 import com.example.pokedex.data.remote.RequestResult
 import com.example.pokedex.data.repositories.abstraction.IMainPokemonRepository
 import com.example.pokedex.interactors.abstraction.IMainInteractor
-import com.example.pokedex.ui.main.state.MainViewState
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 
@@ -16,9 +15,9 @@ class MainInteractor @Inject constructor(
     private val coroutineDispatcher: CoroutineDispatcher
 ) : IMainInteractor {
 
-    override suspend fun getPokemon(pokemonNumberId: String): PokemonDetails {
+    override suspend fun getPokemon(pokemonUrl: String): PokemonDetails {
         val result = httpClient.safeApiCall(coroutineDispatcher) {
-            mainPokemonRepository.getPokemon(pokemonNumberId)
+            mainPokemonRepository.getPokemon(pokemonUrl)
         }
 
         return when (result) {
@@ -26,27 +25,23 @@ class MainInteractor @Inject constructor(
                 result.data!!
             }
 
-            else -> PokemonDetails()
+            else -> PokemonDetails(pokemonImg = "")
         }
     }
 
-    override suspend fun getPokemons(): MainViewState {
+    override suspend fun getPokemons(): List<PokemonListSummary> {
         val result = httpClient.safeApiCall(coroutineDispatcher) {
             mainPokemonRepository.getPokemons()
         }
 
         return when (result) {
             is RequestResult.Success -> {
-                MainViewState.GetPokemonListSuccess(
-                    result.data ?: mutableListOf(PokemonListSummary(""))
-                )
+                result.data ?: mutableListOf(PokemonListSummary(""))
             }
 
-            is RequestResult.RequestError -> {
-                MainViewState.GetPokemonError(result.errorResponse)
+            else -> {
+                mutableListOf()
             }
-
-            else -> MainViewState.Idle
         }
     }
 
