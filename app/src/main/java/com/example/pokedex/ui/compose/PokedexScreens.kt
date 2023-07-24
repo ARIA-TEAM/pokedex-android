@@ -58,9 +58,8 @@ fun PokedexAppNavHost(
     viewModel: MainViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     NavHost(
-        navController = navController, startDestination = PokedexMainScreens.SplashScreen.route
+        navController = navController, startDestination = PokedexMainScreens.GetStartedScreen.route
     ) {
-        composable(PokedexMainScreens.SplashScreen.route) { PokedexSplashScreen(navController) }
         composable(PokedexMainScreens.GetStartedScreen.route) {
             PokedexGetStartedScreen(
                 //   mainViewState = mainViewState,
@@ -313,14 +312,11 @@ fun PokedexGetStartedScreen(
             .fillMaxSize()
             .background(Gray)
     ) {
-        val localConfig = LocalConfiguration.current
-        val screenHeight = localConfig.screenHeightDp
-        val margin = 40.dp
         val (image, title, subtitle, button) = createRefs()
 
         Image(
             alignment = Alignment.Center, modifier = Modifier.constrainAs(image) {
-                top.linkTo(parent.top, margin = margin)
+                top.linkTo(parent.top, margin = 40.dp)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
                 bottom.linkTo(title.top, margin = 70.dp)
@@ -340,18 +336,20 @@ fun PokedexGetStartedScreen(
         )
         Text(
             textAlign = TextAlign.Center,
-            modifier = Modifier.constrainAs(subtitle) {
-                top.linkTo(title.bottom, margin = margin)
-                end.linkTo(parent.end, margin = 30.dp)
-                start.linkTo(parent.start, margin = 30.dp)
-            },
+            modifier = Modifier
+                .padding(horizontal = 10.dp)
+                .constrainAs(subtitle) {
+                    top.linkTo(title.bottom, margin = 40.dp)
+                    end.linkTo(parent.end, margin = 30.dp)
+                    start.linkTo(parent.start, margin = 30.dp)
+                },
             text = stringResource(id = R.string.get_started_screen_sub_title),
             color = Color.Black,
             style = MaterialTheme.typography.titleMedium
         )
 
         Button(modifier = Modifier.constrainAs(button) {
-            top.linkTo(subtitle.bottom, margin = margin)
+            top.linkTo(subtitle.bottom, margin = 40.dp)
             end.linkTo(parent.end)
             start.linkTo(parent.start)
         }, colors = ButtonDefaults.buttonColors(containerColor = Color.Red), onClick = {
